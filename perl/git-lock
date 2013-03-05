@@ -1,0 +1,292 @@
+#!/usr/bin/perl
+
+# Created: 2012/03/22
+# Last Modify: 2012/03/27
+# Author: Wang Jingxuan 
+# Mail: wjx1985@gmail.com
+
+use strict;
+use Getopt::Long;
+use File::Basename;
+use Cwd qw(abs_path);
+use File::Spec::Functions qw( rel2abs abs2rel );
+
+my $usage =
+"Usage: git-lock [command] [target]
+-----------------------------------gitlock-------------------------------------
+This program uses a file `.gitlock` to check if committed files has been locked
+by other committers. Stores for all files/dirs tracked by git in the repository
+-----------------------------------command-------------------------------------
+lock 	[target] 
+	--all
+	--committer
+	--dry-run
+unlock  [target]
+	--all
+	--committer
+	--dry-run
+list
+init
+check
+version
+uninstall
+";
+
+my $topdir = `git rev-parse --show-cdup` or die "\n"; chomp $topdir;
+my $gitdir = $topdir . '.git';
+my $gitlock = $topdir . '.gitlock';
+my $githookdir = $gitdir . '/hooks';
+my $hook = "pre-commit";
+my $changed = 0;
+my $version = "0.1.1";
+
+# Program Starts HERE !
+&main();
+
+sub main {
+	
+	my ($command, $target, $all, $dry, $cmt);
+
+	if ((@ARGV < 0) 
+		|| !GetOptions(
+			"all",				\$all,
+			"committer=s",		\$cmt,
+			"dry-run",			\$dry,
+		)) { die $usage; }
+
+	($command, $target) = ($ARGV[0], $ARGV[1]);
+
+	#print STDERR "Calling: git-lock command : $command target : $target \n";
+	
+	my ($ownership, $rel_git_path, $committer);
+
+	# get committer
+	$committer = `git config --get user.name` or die "\n";
+	chomp($committer);
+	
+	if ($cmt) {
+		$committer = $cmt;
+	}
+
+	if (!$committer) {
+		die "
+		Committer info not found
+		Please exeute `git config user.name \"Your Name\"`";
+	}
+
+	if ($command eq "lock") {
+		# get ownership from .gitlock file
+		$ownership = load_lockfile();
+		# get target file's relative path to git top dir
+		$rel_git_path = relative_path($target);
+
+		my $opt;
+		$opt = "all" if ($all);
+		if ($rel_git_path eq ".gitlock") {
+			die ".gitlock could not be locked";
+		}
+		&lock($ownership, $rel_git_path, $committer, $opt);
+	} elsif ($command eq "unlock") {
+		# get ownership from .gitlock file
+		$ownership = load_lockfile();
+		# get target file's relative path to git top dir
+		$rel_git_path = relative_path($target);
+
+		my $opt;
+		$opt = "all" if ($all);
+		&unlock($ownership, $rel_git_path, $committer, $opt);
+	} elsif ($command eq "list") {
+		# get ownership from .gitlock file
+		$ownership = load_lockfile();
+		
+		print "\nListing lock info in .gitlock file \n\n";
+		for my $file (sort keys %{$ownership}) {
+			print "$file ===> $ownership->{$file}\n";	
+		}
+		print "\n";
+	} elsif ($command eq "check") {
+		# get ownership from .gitlock file
+		$ownership = load_lockfile();
+		
+		my $changed_files = load_committed();
+
+		for my $file (@{$changed_files}) {
+			print STDERR "checking $file ...\n";
+			if(my $ret = check($ownership, $file, $committer)) {
+				die "$ret->{file} is locked by $ret->{owner}";
+			}
+		}
+	} elsif ($command eq "init") {
+		# check .gitlock file
+		if (-e $gitlock) {
+			print STDERR "Found $gitlock, skipping\n";
+		} else {
+			`touch $gitlock`;
+			`git add $gitlock`;
+			print STDERR "Init $gitlock\n";
+		}
+
+		# check .git/hooks/pre-commit file
+		my $hk = "$githookdir/$hook";
+		if (-e $hk) {
+			my $ret = `grep git-lock $hk`;
+			if (!$ret) {
+				print STDERR "Found $hk, updating\n";
+				`cp $hk $hk.gitlock.bak `;
+				`echo "git-lock check" >> $hk`;
+			} else {
+				print STDERR "Found $hk, skipping\n";
+			}
+		} else {
+			# write in hook file
+			`echo "#!/bin/sh" >> $hk`;
+			`echo "git-lock check" >> $hk`;
+			print STDERR "Init $hk\n";
+		}
+	} elsif ($command eq "version") {
+		print STDERR "git-lock version $version\n";	
+	} elsif ($command eq "uninstall") {
+		# check .gitlock file
+		if (-e $gitlock) {
+			`rm $gitlock`;
+		}
+
+		# check .git/hooks/pre-commit file
+		my $hk = "$githookdir/$hook";
+		if (-e $hk) {
+			`sed -ic 's#^.*git-lock.*\$##g' $hk`;
+			print STDERR "Clear $hk\n";
+		}
+	} else {
+		die " Invalid command $command \n $usage";
+	}
+
+	if ($dry) {
+		die "dry-run break \n";
+	}
+
+	if ($changed) {
+		update_lockfile($ownership);
+	}
+
+}
+
+sub relative_path {
+	my ($file) = @_;
+
+	my $absTopDir = `git rev-parse --git-dir` or die "\n"; chomp $absTopDir;
+	$absTopDir = dirname($absTopDir);
+	
+	my $abs_target_path = abs_path($file);
+	my $rel_git_path = abs2rel($abs_target_path, $absTopDir);
+	return $rel_git_path;
+}
+
+sub lock {
+	my ($ownership, $rel_git_path, $committer, $opt) = @_;
+
+	if ($opt eq "all") {
+		# TODO
+	} else {
+		if (my $ret = check($ownership, $rel_git_path, $committer)) {
+			die "$ret->{file} is locked by $ret->{owner}";
+		} else {
+			$ownership->{$rel_git_path} = $committer;
+			print STDERR "Locked $rel_git_path By $committer \n";
+		}
+	}
+	$changed = 1;
+}
+
+sub unlock {
+	my ($ownership, $rel_git_path, $committer, $opt) = @_;
+
+	if ($opt eq "all") {
+		for my $file (keys %{$ownership}) {
+			if ($ownership->{$file} eq $committer) {
+				delete $ownership->{$file};
+				print STDERR "Unlocked $file By $committer \n";
+			}
+		}
+		print STDERR "Unlocked all files/dirs from $committer \n";
+	} else {
+		if ($ownership->{$rel_git_path} eq $committer) {
+			delete $ownership->{$rel_git_path};
+			print STDERR "Unlocked $rel_git_path By $committer \n";
+		} else {
+			die "$rel_git_path is not locked by $committer";
+		}
+	}
+	$changed = 1;
+}
+
+sub load_committed {
+	# get committed files
+	my @committed = `git status --porcelain`;
+	my @changed_files;
+	for my $line (@committed) {
+		#print $line;
+		chomp($line);
+		my $s1 = substr $line, 0, 1;
+		my $s2 = substr $line, 1, 1;
+		my ($file, $arrow, $newFile) = split('\s+', substr $line, 3);
+		if ($s1 =~ /[MADRC]/ || $s2 =~ /[MD]/) {
+			push (@changed_files, $file);
+		}
+		if ($newFile) {
+			push(@changed_files, $newFile);
+		}
+	}
+	return \@changed_files;
+}
+
+sub load_lockfile {
+	# load lock ownership in .gitlock file
+	my $ownership = +{};
+    open (FILE, "<$gitlock") 
+		or die "Could not open $gitlock for reading: $!\n";
+    while ( my $line = <FILE>) {
+		chomp($line);
+		my ($file, $owner) = split(':', $line);
+		$ownership->{$file} = $owner;
+	}
+	close FILE;
+	return $ownership;
+}
+
+sub update_lockfile {
+	my ($ownership) = @_;
+	# update .gitlock file
+    open (FILE, ">$gitlock") 
+		or die "Could not open $gitlock for update: $!\n";
+	for my $file (sort keys %{$ownership}) {
+		if ($ownership->{$file}) {
+			print FILE "$file:$ownership->{$file}\n";
+		}	
+	}
+	close FILE;
+	system("git add $gitlock");
+}
+
+sub check {
+	my ($ownership, $file, $committer) = @_;
+	# check until we find lock owner
+	my $dir = $file;
+	do { 
+		if ($ownership->{$dir} && $ownership->{$dir} ne $committer) {
+			my $ret = +{};
+			$ret->{file} = $dir;
+			$ret->{owner} = $ownership->{$dir};
+			return $ret;
+		}
+		#print "$dir - ",dirname($dir),"\n";
+		$dir = dirname($dir);
+	} while($dir ne ".");
+	if ($ownership->{'.'} && $ownership->{'.'} ne $committer) {
+		my $ret = +{};
+		$ret->{file} = '.';
+		$ret->{owner} = $ownership->{'.'};
+		return $ret;
+	}
+}
+
