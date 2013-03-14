@@ -1,32 +1,50 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Jingxuan Wang Extension's Popup</title>
-    <style>
-      body {
-        min-width: 357px;
-        overflow-x: hidden;
-      }
+	<head>
+		<title>Jingxuan Wang Extension's Popup</title>
+		<style>
+			body {
+				min-width: 357px;
+				overflow-x: hidden;
+			}
 
-      img {
-        margin: 5px;
-        border: 2px solid black;
-        vertical-align: middle;
-        width: 75px;
-        height: 75px;
-      }
-    </style>
+			img {
+				margin: 5px;
+				border: 2px solid black;
+				vertical-align: middle;
+				width: 75px;
+				height: 75px;
+			}
+		</style>
 
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
-     -->
-    <!--script src="popup.js"></script-->
-    <script src="SurfLogger.js"></script>
-  </head>
-  <body>
-  </body>
+		<!--
+			- JavaScript and HTML must be in separate files: see our Content Security
+			- Policy documentation[1] for details and explanation.
+			-
+			- [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
+		 -->
+		<!--script src="popup.js"></script-->
+	<script src="SurfLogger.js"></script>
+	</head>
+	<body>
+	<button id="btn_clear">clear</button><br>
+	<button id="btn_log">log</button><br>
+	<button id="btn_list">list</button><br>
+	
+		<div id="list"></div>
+
+	<hr>
+	
+	<table>
+		<div id="msg"></div>
+	</table>	
+	
+	<hr>
+	
+	<table>
+		<div id="error"></div>
+	</table>
+
+	</body>
 </html>
 

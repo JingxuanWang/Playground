@@ -1,6 +1,5 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Author: Wang Jingxuan
+// Created: 2013.3.13
 
 
 var SurfLogger = {
@@ -13,10 +12,16 @@ var SurfLogger = {
 	 *
 	 * @public
 	 */
-	log: function() {
+	log: function(url) {
 		// parse host from current connecting site
-		var url = "www.sohu.com/news";
+		// var url = "www.sohu.com/news";
+		if (!url) {
+			url = "www.sohu.com/news";
+		}
 		var host = "www.sohu.com";
+
+		var url_slices = url.split("/");
+		host = url_slices[0];
 
 		var local = {
 			logger : {
@@ -37,14 +42,21 @@ var SurfLogger = {
 				if (!item[host]) {
 					item[host] = 0;
 				}
-			}
-			
-			++item[host];
+				++item[host];
 
-			chrome.storage.local.set(item, function() {
-				// Notify that we saved.
-				console.log('Settings saved '+ url + " : " + item[host]);
-			});
+				chrome.storage.local.set(item, function() {
+					// Notify that we saved.
+					console.log('Settings saved '+ url + " : " + item[host]);
+					SurfLogger.list();
+				});
+			} else {
+				// if we do not have that before
+				// create a new one
+				chrome.storage.local.set({'logger': item}, function() {
+					// Notify that we saved.
+					console.log('Logger Created!');
+				});
+			}
 		});
 	},
 	/**
@@ -54,7 +66,9 @@ var SurfLogger = {
 	 * @public
 	 */
 	clear: function() {
-		chrome.storage.local.clear();
+		chrome.storage.local.clear(function() {
+			SurfLogger.list();
+		});
 	},
 
 	/**
@@ -65,10 +79,21 @@ var SurfLogger = {
 	 */
 	list: function() {
 		chrome.storage.local.get(null, function(item) {
+			var list_table = "<table>";
+		
 			for (var host in item) {
-				console.log("===> host: "+ host +" count: "+item[host]);
+				console.log("===> host: "+ host +" count: "+ item[host]);
+				list_table += "<tr colspan=2><td width=100>";
+				list_table += host;
+				list_table += "</td><td width=50>";
+				list_table += item[host];
+				list_table += "</td></tr>";
 			}
+			list_table += "</table>";
+		
+			document.getElementById('list').innerHTML = list_table;
 		});
+	
 	},
 
 	/**
@@ -87,15 +112,30 @@ document.addEventListener('DOMContentLoaded', function () {
 	SurfLogger.storage = chrome.storage.local;
 	//SurfLogger.test();
 	//SurfLogger.clear();
-	SurfLogger.log();
-	SurfLogger.list();
+	//SurfLogger.log();
+	//SurfLogger.list();
 
+	// bind buttons
+	var btn_clear = document.getElementById('btn_clear');
+	var btn_log = document.getElementById('btn_log');
+	var btn_list = document.getElementById('btn_list');
+
+	btn_clear.addEventListener('click', function() {
+		SurfLogger.clear();
+	});
+	btn_log.addEventListener('click', function() {
+		SurfLogger.log();
+	});
+	btn_list.addEventListener('click', function() {
+		SurfLogger.list();
+	});
 });
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
 	for (key in changes) {
 		var storageChange = changes[key];
-		console.log('Storage key "%s" in namespace "%s" changed. ' +
+		console.log(
+			'Storage key "%s" in namespace "%s" changed. ' +
 			'Old value was "%s", new value is "%s".',
 			key,
 			namespace,
@@ -118,6 +158,7 @@ chrome.webRequest.onCompleted.addListener(
 
 chrome.webNavigation.onCompleted.addListener(function(details){
 	console.log(details);
-	alert("hey");
+	SurfLogger.log(details.url);
+	alert(details.url);
 });
 
