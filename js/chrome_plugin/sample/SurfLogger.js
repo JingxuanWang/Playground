@@ -5,6 +5,7 @@
 var SurfLogger = {
 
 	storage: chrome.storage.local,
+	DEFAULT_LIMIT: 10,
 
 	/**
 	 * Logging visited site & Count 
@@ -77,17 +78,37 @@ var SurfLogger = {
 	 *
 	 * @public
 	 */
-	list: function() {
+	list: function(limit) {
+		if (!limit) {
+			limit = this.DEFAULT_LIMIT;
+		} 
 		chrome.storage.local.get(null, function(item) {
+			var sorted_item = [];
+			item = sortByValue(item);
+
+			//var list_table = "<table border=1>";
 			var list_table = "<table>";
-		
-			for (var host in item) {
-				console.log("===> host: "+ host +" count: "+ item[host]);
-				list_table += "<tr colspan=2><td width=100>";
-				list_table += host;
-				list_table += "</td><td width=50>";
-				list_table += item[host];
+				list_table += "<tr colspan=3><td width=30>";
+				list_table += "Rank";
+				list_table += "</td><td width=200 align=center>";
+				list_table += "Host";
+				list_table += "</td><td width=100 align=right>";
+				list_table += "Count";
 				list_table += "</td></tr>";
+
+			for (var i = 0; i < item.length; i++) {
+				console.log("===> host: "+ item[i][0] +" count: "+ item[i][1]);
+				list_table += "<tr colspan=3><td width=30>";
+				list_table += i + 1;
+				list_table += "</td><td width=200>";
+				list_table += "<a href=\"http://"+item[i][0]+"\">"+item[i][0]+"</a>";
+				list_table += "</td><td width=100 align=right>";
+				list_table += item[i][1];
+				list_table += "</td></tr>";
+				
+				if (i == limit - 1) {
+					break;
+				}
 			}
 			list_table += "</table>";
 		
@@ -178,4 +199,25 @@ chrome.history.onVisited.addListener(function(details) {
 	SurfLogger.log(details);
 });
 //*/
+
+
+function sortByValue(obj, callback,  context) {
+	var tuples = [];
+	for (var key in obj) {
+		tuples.push([key, obj[key]]);
+	}
+	
+	/*
+	 * tuples[0] = [key, obj[key]]
+	 * tuples[1] = [key, obj[key]]
+	 * ...
+	 */
+
+	tuples.sort(function(a, b) {
+		return a[1] < b[1] ? 1 : a[1] > b[1] ? -1 : 0 
+	});
+	
+	var length = tuples.length;
+	return tuples;
+}
 
