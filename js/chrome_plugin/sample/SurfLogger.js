@@ -12,17 +12,17 @@ var SurfLogger = {
 	 *
 	 * @public
 	 */
-	log: function(url) {
+	log: function(details) {
 		// parse host from current connecting site
-		// var url = "www.sohu.com/news";
-		if (!url) {
-			url = "www.sohu.com/news";
-		}
-		var host = "www.sohu.com";
-
+		var url = details.url;
 		var url_slices = url.split("/");
-		host = url_slices[0];
+		var host = url_slices[2];
 
+		if (!host) {
+			alert("host is empty: " + host);
+		}
+
+		/*
 		var local = {
 			logger : {
 				'www.sohu.com' : 1,
@@ -30,7 +30,7 @@ var SurfLogger = {
 				//...
 			}
 		};
-
+		*/
 
 		var count = 0;
 
@@ -114,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	//SurfLogger.clear();
 	//SurfLogger.log();
 	//SurfLogger.list();
-
 	// bind buttons
 	var btn_clear = document.getElementById('btn_clear');
 	var btn_log = document.getElementById('btn_log');
@@ -123,13 +122,20 @@ document.addEventListener('DOMContentLoaded', function () {
 	btn_clear.addEventListener('click', function() {
 		SurfLogger.clear();
 	});
+
+
+	/*
 	btn_log.addEventListener('click', function() {
 		SurfLogger.log();
 	});
 	btn_list.addEventListener('click', function() {
 		SurfLogger.list();
 	});
+	*/
+
+	SurfLogger.list();
 });
+
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
 	for (key in changes) {
@@ -154,11 +160,22 @@ chrome.webRequest.onCompleted.addListener(
 	{urls: ["<all_urls>"]},
 	[]
 );
-*/
+//*/
 
+/*
 chrome.webNavigation.onCompleted.addListener(function(details){
-	console.log(details);
 	SurfLogger.log(details.url);
-	alert(details.url);
 });
+//*/
+/*
+chrome.webNavigation.onCommitted.addListener(function(details){
+	SurfLogger.log(details.url);
+});
+//*/
+
+///*
+chrome.history.onVisited.addListener(function(details) {
+	SurfLogger.log(details);
+});
+//*/
 

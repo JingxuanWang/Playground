@@ -11,7 +11,13 @@
 	},
 	"permissions": [
 		"storage",
+		"history",
 		"webRequest",
 		"webNavigation"
-	]
+	],
+	"background": {
+		"scripts": [
+			"SurfLogger.js"
+		]
+	}
 }
