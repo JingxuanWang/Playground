@@ -23,16 +23,6 @@ var SurfLogger = {
 			alert("host is empty: " + host);
 		}
 
-		/*
-		var local = {
-			logger : {
-				'www.sohu.com' : 1,
-				'www.sina.com.cn' : 2,
-				//...
-			}
-		};
-		*/
-
 		var count = 0;
 
 		//chrome.storage.local.get(host, function(items) {
@@ -90,9 +80,9 @@ var SurfLogger = {
 			var list_table = "<table>";
 				list_table += "<tr colspan=3><td width=30>";
 				list_table += "Rank";
-				list_table += "</td><td width=200 align=center>";
+				list_table += "</td><td width=250 align=center>";
 				list_table += "Host";
-				list_table += "</td><td width=100 align=right>";
+				list_table += "</td><td width=50 align=right>";
 				list_table += "Count";
 				list_table += "</td></tr>";
 
@@ -100,9 +90,9 @@ var SurfLogger = {
 				console.log("===> host: "+ item[i][0] +" count: "+ item[i][1]);
 				list_table += "<tr colspan=3><td width=30>";
 				list_table += i + 1;
-				list_table += "</td><td width=200>";
+				list_table += "</td><td width=250>";
 				list_table += "<a href=\"http://"+item[i][0]+"\">"+item[i][0]+"</a>";
-				list_table += "</td><td width=100 align=right>";
+				list_table += "</td><td width=50 align=right>";
 				list_table += item[i][1];
 				list_table += "</td></tr>";
 				
@@ -131,28 +121,13 @@ var SurfLogger = {
 // Run our kitten generation script as soon as the document's DOM is ready.
 document.addEventListener('DOMContentLoaded', function () {
 	SurfLogger.storage = chrome.storage.local;
-	//SurfLogger.test();
-	//SurfLogger.clear();
-	//SurfLogger.log();
-	//SurfLogger.list();
+	
 	// bind buttons
 	var btn_clear = document.getElementById('btn_clear');
-	var btn_log = document.getElementById('btn_log');
-	var btn_list = document.getElementById('btn_list');
 
 	btn_clear.addEventListener('click', function() {
 		SurfLogger.clear();
 	});
-
-
-	/*
-	btn_log.addEventListener('click', function() {
-		SurfLogger.log();
-	});
-	btn_list.addEventListener('click', function() {
-		SurfLogger.list();
-	});
-	*/
 
 	SurfLogger.list();
 });
