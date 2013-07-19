@@ -4,7 +4,7 @@ use strict;
 use POSIX qw /pow/;
 use Inline qw /C/;
 
-use wjxUtil;
+use utils;
 use Data::Dumper;
 use IO::Compress::Gzip qw/gzip $GzipError/;
 
