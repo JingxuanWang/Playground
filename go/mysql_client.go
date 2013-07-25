@@ -4,16 +4,21 @@ import (
 	"fmt"
 	"database/sql"
 	"reflect"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-import _ "github.com/go-sql-driver/mysql"
 
 type ResultRow map[string]interface{}
 
 type const_master struct {
-	const_name string
-	event_id int
-	const_value float64
+	Field_const_name string
+	Field_event_id int
+	Field_const_value float64
+}
+
+type squareNum struct {
+	Field_number int64
+	Field_squareNumber int64
 }
 
 func getDriver() string {
@@ -90,14 +95,40 @@ func GetResult(rows *sql.Rows) ([]interface{}, []string){
 	return ret, columns
 }
 
-//func makeRow() {
-
-//}
-
-func convert(v interface{}) {
+// should make a dst of equal length to src
+func ConvertResult(src interface{}, dst interface{}) {
+	rr, ok := src.(ResultRow)
+	if !ok {
+		panic("result isn't match")
+	}
+	v := reflect.ValueOf(dst)
+	e := v.Elem()
+	for name, elem := range rr {
+		elemInt, _ := elem.(int64)
+		if e.Kind() == reflect.Struct {
+			f := e.FieldByName("Field_" + name)
+			if f.IsValid() {
+				if f.CanSet() {
+					if f.Kind() == reflect.Int64 {
+						f.SetInt(int64(elemInt))
+					} else {
+						fmt.Println("field kind is not int")
+					}
+				} else {
+					fmt.Println("field can not set")
+				}
+			} else {
+				fmt.Println("field is not valid")
+			}
+		} else {
+			fmt.Println("elem kind is not struct")
+		}
+	}
 }
 
+
 func Dump(results []interface{}, columns []string) {
+	return
 	for _, c := range columns {
 		fmt.Printf("%s\t", c)
 	}
@@ -105,8 +136,8 @@ func Dump(results []interface{}, columns []string) {
 
 	for _, row := range results {
 		rr := row.(ResultRow)
-		//fmt.Println(reflect.TypeOf(rr), " : ", reflect.ValueOf(rr))
-		//fmt.Println(reflect.ValueOf(rr).Kind())
+		fmt.Println(reflect.TypeOf(rr), " : ", reflect.ValueOf(rr))
+		fmt.Println(reflect.ValueOf(rr).Kind())
 		for _, field := range rr {
 			switch val := field.(type) {
 				case []byte:
@@ -129,39 +160,27 @@ func main() {
 	SELECT	squareNumber 
 	  FROM	squarenum 
 	  WHERE	number = ?
-`*/
+`
+*/
 	stmt := `
 	SELECT	* 
-	  FROM	const_master
+	  FROM	squareNum
+	  WHERE number < 3
 `
-
-	//rows := QueryExec(dbh, stmt, 12)
+	//rows := QueryExec(dbh, stmt, 3)
 	rows := QueryExec(dbh, stmt)
 
 	results, columns := GetResult(rows)
 
-	//Dump(results, columns)
+	Dump(results, columns)
 	for _, c := range columns {
 		fmt.Printf("%s\t", c)
 	}
 	fmt.Println()
 
-	for _, row := range results {
-		rr, ok := row.(const_master)
-		if ok {
-			fmt.Println(rr);
-		} else {
-			//panic("const_master convertion failed")
-		}
+	res := make([]squareNum, len(results))
+	for i, row := range results {
+		ConvertResult(row, &res[i])
 	}
-
-
-	// set result rows into correspond data structures
-	// Target row struct
-	// type tgt_row struct {
-	// 		some defination ...
-	// }
-	// var tgt_row[100] tr
-	// rows.Scan(&tgt_row)
-
+	fmt.Println(res)
 }
