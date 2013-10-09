@@ -1,5 +1,37 @@
 " settings by Wang Jingxuan
 
+
+set nocompatible               " be iMproved
+filetype off                   " required!
+
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" let Vundle manage Vundle
+" required! 
+Bundle 'gmarik/vundle'
+
+" My Bundles here:
+"
+" original repos on github
+Bundle 'tpope/vim-fugitive'
+Bundle 'neocomplcache'
+Bundle 'FencView.vim'
+Bundle 'Markdown'
+Bundle 'Markdown-syntax'
+Bundle 'scrooloose/nerdtree'
+
+Bundle 'winmanager'
+Bundle 'ctags.vim'
+Bundle 'taglist.vim'
+"Bundle 'bufexplorer.zip'
+
+
+source ~/playground/settings/neocomplcache.vim
+
+filetype plugin indent on     " required!
+
+
 set nu
 set autoindent
 set tabstop=4
@@ -27,14 +59,15 @@ set laststatus=2
 " Go Vim Plugins
 set rtp+=$GOROOT/misc/vim
 filetype plugin on
-"filetype indent on
+filetype indent on
 syntax on
 
 " filetype go
 au BufRead,BufNewFile *.go set filetype=go
 
 " map double tab to omnifunc completion
-imap qq <c-x><c-o>
+"imap qq <c-p>
+"imap xx <c-x><c-o>
 
 "filetype on
 "filetype plugin on
@@ -79,8 +112,8 @@ let Tlist_Exit_OnlyWindow = 1
 
 " WinManater Settings
 let g:winManagerWidth = 45
-let g:winManagerWindowLayout='FileExplorer|TagList'
-map mm :WMToggle<CR>
+"let g:winManagerWindowLayout='FileExplorer|TagList'
+"map mm :WMToggle<CR>
 
 " ============CTags Settings============
 set tags=tags;
@@ -123,5 +156,21 @@ map <c-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
 map <c-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
 " Find files that included current file
 map <c-\>i :cs find i ^<C-R>=expand("<cfile>")<CR><CR>
+
+" nerttree
+"map <C-n> :NERDTreeToggle<cr>
+
+let g:NERDTree_title = "[NERDTree]"
+
+function! NERDTree_Start()
+	exe 'NERDTree'
+endfunction
+
+function! NERDTree_IsValid()
+	return 1
+endfunction
+
+let g:winManagerWindowLayout = "NERDTree|TagList,BufExplorer"
+nmap mm :if IsWinManagerVisible() <BAR> WMToggle<CR> <BAR> else <BAR> WMToggle<CR>:q<CR> endif <CR><CR>
 
 
