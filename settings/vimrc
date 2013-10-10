@@ -15,19 +15,21 @@ Bundle 'gmarik/vundle'
 "
 " original repos on github
 Bundle 'tpope/vim-fugitive'
-Bundle 'neocomplcache'
 Bundle 'FencView.vim'
 Bundle 'Markdown'
 Bundle 'Markdown-syntax'
-Bundle 'scrooloose/nerdtree'
 
 Bundle 'winmanager'
 Bundle 'ctags.vim'
 Bundle 'taglist.vim'
+Bundle 'scrooloose/nerdtree'
 "Bundle 'bufexplorer.zip'
 
-
-source ~/playground/settings/neocomplcache.vim
+" DO NOT load neocomplcache when sudo
+if $SUDO_USER == '' || $USER ==# $SUDO_USER 
+	Bundle 'neocomplcache'
+	source ~/playground/settings/neocomplcache.vim
+endif
 
 filetype plugin indent on     " required!
 
@@ -40,7 +42,10 @@ set title
 set ruler
 set hlsearch
 set encoding=utf-8
-
+set fileencodings=utf-8,iso-2022-jp-3,euc-jp,cp932,sjis,ucs-bom,latin1
+set fileformat=mac
+set fileformats=mac,unix,dos
+set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
 
 " set vi-not-compatible
 set nocp
