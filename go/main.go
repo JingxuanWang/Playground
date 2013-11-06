@@ -10,9 +10,9 @@ import (
 //Exercise for Slice
 func Pic(dx, dy int) [][]uint8 {
 	array := make([][]uint8, dy)
-	
+
 	for i := 0; i < dy; i++ {
-		
+
 		//对于数组元素赋值用 = 而不是 :=
 		array[i] = make([]uint8, dx)
 		for j := 0; j < dx; j++ {
@@ -26,7 +26,7 @@ func Pic(dx, dy int) [][]uint8 {
 
 //Exercies for Map
 func WordCount(s string) map[string]int {
-	
+
 	array := strings.Fields(s);
 	m := make(map[string]int);
 	for _, v := range array {
@@ -40,7 +40,7 @@ func WordCount(s string) map[string]int {
 func fibonacci () func() int {
 	pre := 0
 	cur := 1
-	
+
 	return func() int {
 		cur = pre + cur	// cur = cur + pre = next
 		pre = cur - pre // pre = next - pre = cur + pre - pre = cur

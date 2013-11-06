@@ -2,11 +2,11 @@
 
 use strict;
 
-my $a = "->";
-my $b = "<-";
-my $s = " ";
+my $a = ">";
+my $b = "<";
+my $s = "_";
 
-my $num = 6;
+my $num = 3;
 
 my @init;
 my @final;
