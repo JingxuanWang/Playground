@@ -1,0 +1,71 @@
+# check and load #aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi 
+
+# User Defined Environment
+
+# Shell Color
+export CLICOLOR=1
+export LSCOLORS=exfxaxdxcxegedabagacad
+
+# for solving gnu-tar configuration error
+export FORCE_UNSAFE_CONFIGURE=1
+
+# To Solve ppc compile problem
+export ARCHFLAGS="-arch i386 -arch x86_64"
+
+# set PATH
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/X11/bin:/Users/wang.jingxuan/bin:/opt/local/bin"
+
+# Go ENV
+# GO Installed location
+export GOROOT=/usr/local/Cellar/go/1.1.2
+export GOBIN=$GOROOT/bin
+# Locations where User's workspace that contains go code
+
+export GOPATH=$GOROOT:/Users/wang.jingxuan/playground/go
+#export GOPATH=$GOROOT/libexec/src/pkg
+#export GOPATH=${GOPATH}:/Users/wang.jingxuan/playground/go
+
+# To invoke perlomni plugin
+export PATH=~/.vim/bin:$PATH
+export PATH=$GOROOT/bin:$PATH
+export PATH=$GOPATH/bin:$PATH
+
+# Ruby
+export PATH=/Users/wang.jingxuan/.gem/ruby/1.8/bin:/usr/local/Cellar/ruby/2.0.0-p247/bin:$PATH
+
+# Sybase
+export SYBASE=/usr/local/freetds
+export ODBCHOME=/usr/local
+
+# FOR easysoft 
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/easysoft/sqlserver:/usr/local/easysoft/lib
+
+
+# For Java
+export JAVA_HOME="/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home"
+export CLASSPATH="./:$HOME/Library/Java:$NEXT_ROOT/Library/Java:$NEXT_ROOT/System/Library/Java:$NEXT_ROOT/Network/Library/Java:$NEXT_ROOT/System/Library/Frameworks/JavaVM.framework/Classes/classes.jar:$NEXT_ROOT/System/Library/Frameworks/JavaVM.framework/Classes/ui.jar"
+export CATALINA_HOME="/Users/wang.jingxuan/reading/apache-tomcat-6.0.37-src/output/build"
+
+
+# Etc
+export PATH=${PATH}:/Users/wang.jingxuan/work/android-sdk-mac_x86/tools:/usr/local/Cellar/tomcat/7.0.6/bin
+export PATH=${PATH}:/Library/Wireshark
+export PATH=${PATH}:/usr/X11/include/freetype2
+export PATH=${PATH}:/usr/local/share/npm/bin
+export PATH=${PATH}:/usr/local/sbin
+export PATH=${PATH}:$GOBIN
+
+
+# proj-xyz
+export XYZ_SERVER_ROOT="/Users/wang.jingxuan/playground/go/src/xyzServer"
+export XYZ_CLIENT_ROOT="/Users/wang.jingxuan/playground/go/src/xyzServer/public/js"
+eval "$(rbenv init -)"
+
+# cocos2d-x project
+export COCOS2DX_HOME="/Users/wang.jingxuan/Cocos2d-x-2.2"
+export ANDROID_SDK_ROOT="/Users/wang.jingxuan/Desktop/Cocos2d-x_Resources/adt-bundle-mac-x86_64-20130917/sdk" 
+export NDK_ROOT="/Users/wang.jingxuan/Desktop/Cocos2d-x_Resources/android-ndk-r9" 
+
