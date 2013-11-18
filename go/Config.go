@@ -14,14 +14,28 @@ type router struct {
 }
 
 type config struct {
-	Version string  `json:"version"`
-	Router []router `json:"router"`
+	AppName string   `json:"app"`
+	Version string   `json:"version"`
+	Routers []router `json:"router"`
 }
 
-var fileName string = "conf.json"
+var commonConf string = "conf.json"
+var routerConf string = "router.conf"
+
+func LoadRouter() {
+	fileBytes, err := ioutil.ReadFile(routerConf)
+	if  err == nil {
+		conf := new(config)
+		err := json.Unmarshal(fileBytes, &conf);
+		fmt.Printf("%v", conf)
+		fmt.Println(err)
+	} else {
+		fmt.Println("Error in read file ", err)
+	}
+}
 
 func LoadConfig() {
-	fileBytes, err := ioutil.ReadFile(fileName)
+	fileBytes, err := ioutil.ReadFile(commonConf)
 	if  err == nil {
 		//s := string(fileBytes)
 		//strs := strings.Split(s, "\n")
@@ -39,5 +53,6 @@ func LoadConfig() {
 }
 
 func main() {
-	LoadConfig()
+	//LoadConfig()
+	LoadRouter()
 }
