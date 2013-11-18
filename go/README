@@ -1,9 +1,0 @@
-做Go语言项目必须涉及到的几个点
-
-工程文件管理
-自动化测试
-接口interface（包括struct，以及用二者实现的多态等等）
-协程gorouting
-HTTP Server/Socket Server
-反射（？）
-
