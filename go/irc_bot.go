@@ -18,7 +18,7 @@ import (
 // default config
 const RECV_BUF_LEN = 1024
 const DEFAULT_LISTENER_PORT int = 20080
-const DEFAULT_HOST string = "example:6667"
+const DEFAULT_HOST string = "example.com:6667"
 const DEFAULT_NICK string = "wjx-bot"
 var   DEFAULT_CHANNELS []string = []string{"#wjx-test"}
 
@@ -38,7 +38,7 @@ type Message struct {
 }
 
 // handler function type
-type CallbackFunc func(data [][]string) (out string, err interface{})
+type CallbackFunc func(data [][]string) (out string, err error)
 
 type Handler struct {
 	Regexp   *regexp.Regexp
@@ -301,10 +301,8 @@ func (b *BotClient) processPrivMsg(data [][]string) {
 				if err == nil {
 					b.privmsg(out, message.Channel)
 				} else {
-					str, err := err.(string)
-					if (err != true) {
-						b.privmsg(str, message.Channel)
-					}
+					b.warn(err.Error())
+					//b.privmsg(err.Error(), message.Channel)
 				}
 			}
 		}
@@ -337,26 +335,26 @@ func (b *BotClient) RegistHandler(name, regexp_pattern string, callback Callback
 //
 // handler functions
 //
-func handleTime(data [][]string) (out string, err interface{}) {
+func handleTime(data [][]string) (out string, err error) {
 	cmd := exec.Command("date")
 	cmd_out, cmd_err := cmd.Output()
 	return string(cmd_out), cmd_err
 }
 
-func handleTimestamp(data [][]string) (out string, err interface{}) {
+func handleTimestamp(data [][]string) (out string, err error) {
 	cmd := exec.Command("date", "+'%s'")
 	cmd_out, cmd_err := cmd.Output()
 	return string(cmd_out), cmd_err
 }
 
-func handleTimestampConvertion(data [][]string) (out string, err interface{}) {
+func handleTimestampConvertion(data [][]string) (out string, err error) {
 	timestamp := data[0][1]
 	intTimestamp, _ := strconv.ParseInt(timestamp, 10, 64)
 	date := time.Unix(intTimestamp, 0)
 	return date.Format("2006-01-02 15:04:05"), nil
 }
 
-func handleCount(data [][]string) (out string, err interface{}) {
+func handleCount(data [][]string) (out string, err error) {
 	variable := data[0][1]
 	operator := data[0][2]
 
@@ -375,13 +373,21 @@ func handleCount(data [][]string) (out string, err interface{}) {
 func main() {
 	bot := new(BotClient)
 
-	// Load default config or command line argument
-	if len(os.Args) < 4 || os.Args[1] == "" || os.Args[2] == "" || os.Args[3] == "" {
-		bot.LoadConfig(DEFAULT_HOST, DEFAULT_NICK, DEFAULT_CHANNELS)
-	} else {
-		bot.LoadConfig(os.Args[1], os.Args[2], os.Args[3:len(os.Args)])
+	host := DEFAULT_HOST;
+	nick := DEFAULT_NICK;
+	channels := DEFAULT_CHANNELS;
+	if len(os.Args) > 1 && os.Args[1] != "" {
+		host = os.Args[1]
+	}
+	if len(os.Args) > 2 && os.Args[2] != "" {
+		nick = os.Args[2]
+	}
+	if len(os.Args) > 3 && os.Args[3] != "" {
+		channels = os.Args[3:len(os.Args)]
 	}
 
+	bot.LoadConfig(host,nick, channels)
+	fmt.Println(host);
 	bot.Init(true)
 
 	//
