@@ -18,7 +18,7 @@ import (
 // default config
 const RECV_BUF_LEN = 1024
 const DEFAULT_LISTENER_PORT int = 20080
-const DEFAULT_HOST string = "example.com:6667"
+const DEFAULT_HOST string = "example:6667"
 const DEFAULT_NICK string = "wjx-bot"
 var   DEFAULT_CHANNELS []string = []string{"#wjx-test"}
 
@@ -259,7 +259,7 @@ func (b *BotClient) processPrivMsg(data [][]string) {
 	}
 
 	if b.debug {
-		b.notice("Detected : " + message.Content, message.Channel)
+		//b.notice("Detected : " + message.Content, message.Channel)
 	}
 
 	if message.Action {
@@ -300,6 +300,11 @@ func (b *BotClient) processPrivMsg(data [][]string) {
 				out, err := handler.Callback(data)
 				if err == nil {
 					b.privmsg(out, message.Channel)
+				} else {
+					str, err := err.(string)
+					if (err != true) {
+						b.privmsg(str, message.Channel)
+					}
 				}
 			}
 		}
@@ -338,6 +343,19 @@ func handleTime(data [][]string) (out string, err interface{}) {
 	return string(cmd_out), cmd_err
 }
 
+func handleTimestamp(data [][]string) (out string, err interface{}) {
+	cmd := exec.Command("date", "+'%s'")
+	cmd_out, cmd_err := cmd.Output()
+	return string(cmd_out), cmd_err
+}
+
+func handleTimestampConvertion(data [][]string) (out string, err interface{}) {
+	timestamp := data[0][1]
+	intTimestamp, _ := strconv.ParseInt(timestamp, 10, 64)
+	date := time.Unix(intTimestamp, 0)
+	return date.Format("2006-01-02 15:04:05"), nil
+}
+
 func handleCount(data [][]string) (out string, err interface{}) {
 	variable := data[0][1]
 	operator := data[0][2]
@@ -369,7 +387,9 @@ func main() {
 	//
 	// regist handler functions here
 	//
-	bot.RegistHandler("timer", "^time$", handleTime)
+	bot.RegistHandler("time", "^time$", handleTime)
+	bot.RegistHandler("timestamp", "^timestamp$", handleTimestamp)
+	bot.RegistHandler("timestamp_to_date", "^date\\s+(\\d+)$", handleTimestampConvertion)
 	bot.RegistHandler("counter", "^(\\S+)(\\+\\+|\\-\\-)$", handleCount)
 
 	bot.Run()
