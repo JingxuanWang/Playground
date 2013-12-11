@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"os/exec"
+//	"os/exec"
 	"regexp"
 	"time"
 	"strconv"
@@ -21,6 +21,10 @@ const DEFAULT_LISTENER_PORT int = 20080
 const DEFAULT_HOST string = "example.com:6667"
 const DEFAULT_NICK string = "wjx-bot"
 var   DEFAULT_CHANNELS []string = []string{"#wjx-test"}
+
+const OUTPUT_DATE_FORMAT string = "2006-01-02 15:04:05"
+const INPUT_DATE_FORMAT string = "2006-01-02 15:04:05"
+const DATE_FORMART string = "+\"%Y-%m-%d %H:%M:%S %Z\""
 
 var counter = map[string]int {}
 
@@ -336,22 +340,28 @@ func (b *BotClient) RegistHandler(name, regexp_pattern string, callback Callback
 // handler functions
 //
 func handleTime(data [][]string) (out string, err error) {
-	cmd := exec.Command("date")
-	cmd_out, cmd_err := cmd.Output()
-	return string(cmd_out), cmd_err
+	return time.Now().Format(OUTPUT_DATE_FORMAT), nil
 }
 
 func handleTimestamp(data [][]string) (out string, err error) {
-	cmd := exec.Command("date", "+'%s'")
-	cmd_out, cmd_err := cmd.Output()
-	return string(cmd_out), cmd_err
+	//cmd := exec.Command("date", "+'%s'")
+	//cmd_out, cmd_err := cmd.Output()
+	//fmt.Printf("%v", cmd_out)
+	//return string(cmd_out), cmd_err
+	return strconv.FormatInt(time.Now().Unix(), 10), nil
 }
 
-func handleTimestampConvertion(data [][]string) (out string, err error) {
+func handleTimestamp2Date(data [][]string) (out string, err error) {
 	timestamp := data[0][1]
-	intTimestamp, _ := strconv.ParseInt(timestamp, 10, 64)
+	intTimestamp, err := strconv.ParseInt(timestamp, 10, 64)
 	date := time.Unix(intTimestamp, 0)
-	return date.Format("2006-01-02 15:04:05"), nil
+	return date.Format(OUTPUT_DATE_FORMAT), err
+}
+
+func handleDate2Timestamp(data [][]string) (out string, err error) {
+	t, err := time.Parse(INPUT_DATE_FORMAT, data[0][1])
+	_, offset := t.Local().Zone();
+	return strconv.FormatInt(t.Local().Unix() - (int64) (offset), 10), err
 }
 
 func handleCount(data [][]string) (out string, err error) {
@@ -395,7 +405,8 @@ func main() {
 	//
 	bot.RegistHandler("time", "^time$", handleTime)
 	bot.RegistHandler("timestamp", "^timestamp$", handleTimestamp)
-	bot.RegistHandler("timestamp_to_date", "^date\\s+(\\d+)$", handleTimestampConvertion)
+	bot.RegistHandler("timestamp_to_date", "^time\\s+(\\d+)$", handleTimestamp2Date)
+	bot.RegistHandler("date_to_timestamp", "^timestamp\\s+(\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}.*)$", handleDate2Timestamp)
 	bot.RegistHandler("counter", "^(\\S+)(\\+\\+|\\-\\-)$", handleCount)
 
 	bot.Run()
