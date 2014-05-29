@@ -28,7 +28,7 @@ Bundle 'scrooloose/nerdtree'
 " DO NOT load neocomplcache when sudo
 if $SUDO_USER == '' || $USER ==# $SUDO_USER 
 	Bundle 'neocomplcache'
-	source ~/playground/settings/neocomplcache.vim
+	source ~/Private/Playground/settings/neocomplcache.vim
 endif
 
 filetype plugin indent on     " required!
@@ -46,6 +46,7 @@ set fileencodings=utf-8,iso-2022-jp-3,euc-jp,cp932,sjis,ucs-bom,latin1
 set fileformat=mac
 set fileformats=mac,unix,dos
 set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
+color peachpuff
 
 " set vi-not-compatible
 set nocp
@@ -177,5 +178,4 @@ endfunction
 
 let g:winManagerWindowLayout = "NERDTree|TagList,BufExplorer"
 nmap mm :if IsWinManagerVisible() <BAR> WMToggle<CR> <BAR> else <BAR> WMToggle<CR>:q<CR> endif <CR><CR>
-
 
