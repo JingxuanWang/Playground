@@ -14,15 +14,20 @@ Bundle 'gmarik/vundle'
 " My Bundles here:
 "
 " original repos on github
+Bundle 'Shougo/neobundle.vim'
 Bundle 'tpope/vim-fugitive'
+Bundle 'kien/ctrlp.vim'
+Bundle 'flazz/vim-colorschemes'
 Bundle 'FencView.vim'
 Bundle 'Markdown'
 Bundle 'Markdown-syntax'
+Bundle 'rust-lang/rust.vim'
 
 Bundle 'winmanager'
 Bundle 'ctags.vim'
 Bundle 'taglist.vim'
 Bundle 'scrooloose/nerdtree'
+Bundle 'bling/vim-airline'
 "Bundle 'bufexplorer.zip'
 
 " DO NOT load neocomplcache when sudo
@@ -45,7 +50,7 @@ set encoding=utf-8
 set fileencodings=utf-8,iso-2022-jp-3,euc-jp,cp932,sjis,ucs-bom,latin1
 set fileformat=mac
 set fileformats=mac,unix,dos
-set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
+"set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
 color peachpuff
 
 " set vi-not-compatible
@@ -61,6 +66,9 @@ highlight JpSpace cterm=underline ctermfg=Green guifg=Green
 set backspace=indent,eol,start
 set whichwrap=b,s,h,l,<,>,[,]
 set laststatus=2
+
+
+let g:airline#extensions#tabline#enabled = 1
 
 " Go Vim Plugins
 set rtp+=$GOROOT/misc/vim
