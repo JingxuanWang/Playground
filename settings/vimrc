@@ -1,42 +1,37 @@
 " settings by Wang Jingxuan
 
+set nocompatible               " be iMproved, required
+filetype off                   " required
 
-set nocompatible               " be iMproved
-filetype off                   " required!
-
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
 
 " let Vundle manage Vundle
 " required! 
-Bundle 'gmarik/vundle'
+Plugin 'gmarik/vundle'
 
 " My Bundles here:
 "
 " original repos on github
-Bundle 'Shougo/neobundle.vim'
-Bundle 'tpope/vim-fugitive'
-Bundle 'kien/ctrlp.vim'
-Bundle 'flazz/vim-colorschemes'
-Bundle 'FencView.vim'
-Bundle 'Markdown'
-Bundle 'Markdown-syntax'
-Bundle 'rust-lang/rust.vim'
+Plugin 'Shougo/neobundle.vim'
+Plugin 'tpope/vim-fugitive'
+Plugin 'kien/ctrlp.vim'
+Plugin 'flazz/vim-colorschemes'
+Plugin 'FencView.vim'
+Plugin 'Markdown'
+Plugin 'Markdown-syntax'
+Plugin 'rust-lang/rust.vim'
 
-Bundle 'winmanager'
-Bundle 'ctags.vim'
-Bundle 'taglist.vim'
-Bundle 'scrooloose/nerdtree'
-Bundle 'bling/vim-airline'
-"Bundle 'bufexplorer.zip'
+Plugin 'winmanager'
+Plugin 'ctags.vim'
+Plugin 'taglist.vim'
+Plugin 'scrooloose/nerdtree'
+Plugin 'bling/vim-airline'
+"Plugin 'bufexplorer.zip'
 
-" DO NOT load neocomplcache when sudo
-if $SUDO_USER == '' || $USER ==# $SUDO_USER 
-	Bundle 'neocomplcache'
-	source ~/Private/Playground/settings/neocomplcache.vim
-endif
-
-filetype plugin indent on     " required!
+" All of your Plugins must be added before the following line
+call vundle#end()             " required
+filetype plugin indent on     " required
 
 
 set nu
